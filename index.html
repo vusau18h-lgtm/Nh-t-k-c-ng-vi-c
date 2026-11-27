@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#121212">
+<title>Nhật ký công việc kho</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script>
+/* ====== CÀI ĐẶT: DÁN ĐƯỜNG LINK ỨNG DỤNG WEB CỦA APPS SCRIPT VÀO ĐÂY ====== */
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzl_WqyNynRg07An4PKVSpMTp6G-szGzWaC75omTCggErM6XD4B3TrVNAmbygceI-U66g/exec";
+/* ========================================================================= */
+</script>
+<style>
+:root{color-scheme:light dark;--bg:light-dark(#fff,#111214);--ink:light-dark(#121212,#f1f1ee);--mute:light-dark(#5f5f58,#a7a79f);--line:light-dark(#e2e2da,#2c2d31);--panel:light-dark(#f4f4ef,#1b1c1f);--yel:#ffc400;--sel:light-dark(#121212,#ffc400);--selink:light-dark(#fff,#121212);--red:light-dark(#c3221a,#ff7a6c);--redbg:light-dark(#fdeceb,#3a1f1c);--ok:light-dark(#11753b,#62d491)}
+*{box-sizing:border-box;min-width:0}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 "Be Vietnam Pro",system-ui,sans-serif;overflow-x:clip}
+button,input,select,textarea{font:inherit;color:inherit}
+:focus-visible{outline:3px solid #2f6bff;outline-offset:2px}
+.top{background:#121212;color:#fff;position:sticky;top:0;z-index:5}
+.top .in{max-width:1240px;margin:0 auto;display:flex;align-items:center;gap:12px;padding:6px max(4vw,14px);flex-wrap:wrap}
+.brand{font:800 23px/1 "Barlow Condensed",sans-serif;display:flex;align-items:center;gap:8px;padding:8px 0}
+.brand b{background:var(--yel);color:#121212;padding:3px 7px;border-radius:3px}
+nav{display:flex;gap:4px;margin-left:auto;overflow-x:auto}
+nav a{color:#d9d9d4;text-decoration:none;padding:0 12px;border-radius:6px;font-weight:600;font-size:15px;white-space:nowrap;min-height:44px;display:flex;align-items:center}
+nav a[aria-current=page]{background:var(--yel);color:#121212}
+.stripe{height:8px;background:repeating-linear-gradient(-45deg,var(--yel) 0 14px,#121212 14px 28px)}
+.status{max-width:1240px;margin:0 auto;padding:10px max(4vw,14px) 0;color:var(--red);font-size:14px;font-weight:600}
+.status:empty{display:none}
+main{max-width:1240px;margin:0 auto;padding:20px max(4vw,14px) 130px}
+section[hidden]{display:none}
+.form{max-width:560px;margin:0 auto}
+.label{background:var(--yel);color:#121212;border-radius:12px;padding:14px 16px;display:grid;grid-template-columns:auto minmax(0,1fr);gap:4px 14px;align-items:center;box-shadow:0 3px 0 #b88d00}
+.label .arr{grid-row:span 3;width:54px;height:54px;background:#121212;border-radius:6px;display:grid;place-items:center}
+.label small{font-weight:600;font-size:13px}
+.label .code{font:800 clamp(38px,11vw,58px)/1 "Barlow Condensed",sans-serif;overflow-wrap:anywhere}
+.label .name{font-weight:600;font-size:15px}
+.label .chg{grid-column:1/-1;justify-self:start;background:none;border:0;padding:6px 0 0;font-weight:700;text-decoration:underline;cursor:pointer;color:#121212;min-height:32px}
+.label select{grid-column:1/-1;margin-top:8px;border-color:#121212;background:#fff;color:#121212}
+.scan{grid-column:1/-1;margin-top:10px;min-height:56px;border:0;border-radius:10px;background:#121212;color:#ffc400;display:flex;align-items:center;justify-content:center;gap:10px;font:800 22px "Barlow Condensed",sans-serif;cursor:pointer;width:100%}
+.field{margin-top:22px}
+.field h3{font-size:15px;margin:0 0 8px;font-weight:700;display:flex;justify-content:space-between;gap:8px}
+.field h3 span{font-weight:500;color:var(--mute)}
+.req::after{content:" *";color:var(--red)}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{min-height:44px;padding:8px 16px;border:1.5px solid var(--line);background:var(--bg);border-radius:999px;font-weight:600;font-size:15px;cursor:pointer}
+.chip[aria-pressed=true],.job[aria-pressed=true]{background:var(--sel);color:var(--selink);border-color:var(--sel)}
+.jobs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.job{min-height:56px;border-radius:10px;text-align:left;padding:10px 14px;border:1.5px solid var(--line);background:var(--bg);font-weight:600;font-size:15px;cursor:pointer;line-height:1.25}
+.me{display:flex;align-items:center;gap:12px;flex-wrap:wrap;font-size:18px;font-weight:700}
+.link{background:none;border:0;color:var(--ink);text-decoration:underline;font-weight:600;font-size:15px;cursor:pointer;min-height:44px;padding:0 4px}
+.mins{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.mins label{display:flex;align-items:center;gap:8px;font-weight:600}
+.num-in,.txt-in,select{height:48px;padding:0 12px;border:1.5px solid var(--line);border-radius:10px;background:var(--bg);font-size:16px}
+.num-in{width:104px;font-weight:700;font-size:20px}
+.txt-in{width:100%}
+select{max-width:100%}
+.pbtns{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:8px}
+.pbtn{position:relative;min-height:58px;border:1.5px dashed var(--mute);border-radius:10px;display:flex;align-items:center;justify-content:center;gap:8px;font-weight:700;cursor:pointer;overflow:hidden}
+.pbtn input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.pbtn.off{opacity:.45;pointer-events:none}
+.thumbs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:10px}
+.thumb{position:relative;aspect-ratio:1;border-radius:8px;overflow:hidden;background:var(--panel)}
+.thumb img{width:100%;height:100%;object-fit:cover;display:block}
+.thumb .x{position:absolute;top:4px;right:4px;width:34px;height:34px;border-radius:50%;background:rgba(0,0,0,.72);color:#fff;border:0;font-size:20px;line-height:1;cursor:pointer}
+.thumb .src{position:absolute;left:4px;bottom:4px;font-size:13px;background:rgba(0,0,0,.72);color:#fff;padding:1px 7px;border-radius:4px}
+.savebar{position:fixed;left:0;right:0;bottom:0;background:var(--bg);border-top:1px solid var(--line);padding:10px max(4vw,14px);z-index:4}
+.savebar[hidden]{display:none}
+.save{display:block;width:100%;max-width:560px;margin:0 auto;height:56px;border:0;border-radius:12px;background:var(--yel);color:#121212;font:800 24px "Barlow Condensed",sans-serif;cursor:pointer}
+.save:disabled{opacity:.6}
+.err{max-width:560px;margin:0 auto 8px;color:var(--red);font-weight:600;font-size:14px}
+.err:empty{display:none}
+h1{font:800 clamp(30px,5vw,46px)/1.05 "Barlow Condensed",sans-serif;margin:4px 0 6px;text-wrap:balance}
+.sub{color:var(--mute);margin:0 0 14px}
+.filters{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.seg{display:flex;border:1.5px solid var(--line);border-radius:10px;overflow:hidden}
+.seg button{border:0;background:var(--bg);min-height:44px;padding:0 14px;font-weight:600;font-size:15px;cursor:pointer}
+.seg button[aria-pressed=true]{background:var(--sel);color:var(--selink)}
+.kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin:18px 0}
+.kpi{border-top:5px solid var(--yel);background:var(--panel);padding:12px 14px;border-radius:0 0 8px 8px}
+.kpi b{font:800 clamp(30px,6vw,46px)/1 "Barlow Condensed",sans-serif;display:block;white-space:nowrap}
+.kpi span{font-size:14px;color:var(--mute)}
+.grid2{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px;margin-bottom:16px}
+.panel{border:1px solid var(--line);border-radius:10px;padding:16px;margin-bottom:16px}
+.grid2 .panel{margin:0}
+.panel h2{font:700 25px/1.1 "Barlow Condensed",sans-serif;margin:0 0 4px}
+.panel .hint{color:var(--mute);font-size:14px;margin:0 0 10px}
+.bar{display:grid;grid-template-columns:minmax(0,8.5em) minmax(0,1fr) auto;gap:10px;align-items:center;margin:9px 0;font-size:15px}
+.bar .tr{height:14px;background:var(--panel);border-radius:3px;overflow:hidden}
+.bar .tr i{display:block;height:100%;background:var(--yel)}
+.bar .v{white-space:nowrap;font-variant-numeric:tabular-nums;text-align:right}
+.bar .v small{color:var(--mute);font-size:13px}
+.cols{display:flex;align-items:flex-end;gap:6px;height:190px;padding-top:6px}
+.col{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;gap:4px}
+.col i{display:block;width:100%;max-width:40px;background:var(--yel);border-radius:3px 3px 0 0;min-height:2px}
+.col span{font-size:13px;color:var(--mute);white-space:nowrap}
+.col .cv{color:var(--ink);font-weight:600}
+table{width:100%;border-collapse:collapse;font-size:15px}
+th,td{padding:9px 8px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+th{font-size:13px;color:var(--mute);font-weight:600}
+.r{text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums}
+.nw{white-space:nowrap}
+.flag{color:var(--red);font-size:13px;display:block;font-weight:600}
+tr.miss td{background:var(--redbg)}
+.tt{display:flex;gap:4px;flex-wrap:wrap}
+.tt button{padding:0;border:0;background:none;cursor:pointer}
+.tt img{width:46px;height:46px;object-fit:cover;border-radius:5px;display:block;background:var(--panel)}
+.tt a{font-size:13px;font-weight:600;color:var(--ink)}
+.empty{color:var(--mute);padding:14px 0}
+.btn{min-height:44px;padding:0 16px;border-radius:8px;border:1.5px solid var(--ink);background:transparent;font-weight:600;font-size:15px;cursor:pointer;display:inline-flex;align-items:center;gap:6px;text-decoration:none;color:var(--ink)}
+.btn.pri{background:var(--yel);border-color:var(--yel);color:#121212}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.qrs{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px;margin-top:16px}
+.qr{border:1px solid var(--line);border-radius:10px;padding:12px;text-align:center;background:#fff;color:#121212;break-inside:avoid}
+.qr svg{width:100%;height:auto;max-width:170px;display:block;margin:0 auto}
+.qr .c{font:800 26px/1 "Barlow Condensed",sans-serif;margin-top:6px}
+.qr .n{font-size:14px;margin:2px 0 4px}
+.qr i{display:block;font-size:12px;color:#555}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.62);display:none;align-items:center;justify-content:center;z-index:20;padding:16px}
+.modal.open{display:flex}
+.box{background:var(--bg);color:var(--ink);border-radius:14px;max-width:440px;width:100%;padding:22px;max-height:92vh;overflow:auto}
+.box.wide{max-width:900px;padding:12px}
+.box.wide img{width:100%;height:auto;max-height:76vh;object-fit:contain;display:block;border-radius:8px;background:#000}
+.box h2{font:800 30px/1.05 "Barlow Condensed",sans-serif;margin:0 0 8px}
+.box p{margin:0 0 16px}
+.tick{width:64px;height:64px;border-radius:50%;background:var(--ok);display:grid;place-items:center;margin-bottom:10px;animation:pop .35s ease-out}
+@keyframes pop{from{transform:scale(.4);opacity:0}to{transform:scale(1);opacity:1}}
+@media(prefers-reduced-motion:reduce){.tick{animation:none}}
+.scanner{position:fixed;inset:0;background:#000;z-index:25;display:none;flex-direction:column}
+.scanner.open{display:flex}
+.scanner video{flex:1;width:100%;height:100%;object-fit:cover;min-height:0}
+.scanner .frame{position:absolute;left:50%;top:45%;width:min(68vw,300px);aspect-ratio:1;transform:translate(-50%,-50%);border:4px solid var(--yel);border-radius:18px;box-shadow:0 0 0 100vmax rgba(0,0,0,.45);pointer-events:none}
+.scanner .bar2{position:absolute;left:0;right:0;bottom:0;padding:16px;display:flex;flex-direction:column;gap:10px;align-items:center;color:#fff;text-align:center}
+.scanner .bar2 button{min-height:52px;padding:0 28px;border-radius:12px;border:0;background:var(--yel);color:#121212;font:800 20px "Barlow Condensed",sans-serif;cursor:pointer}
+.toast{position:fixed;left:50%;bottom:86px;transform:translateX(-50%);background:#121212;color:#fff;padding:10px 16px;border-radius:8px;font-size:15px;z-index:30;display:none;max-width:90vw}
+.toast.on{display:block}
+.scroll{overflow-x:auto}
+@media(max-width:760px){.kpis{grid-template-columns:repeat(2,minmax(0,1fr))}.grid2{grid-template-columns:minmax(0,1fr)}}
+@media(max-width:600px){table{font-size:13px}.stack thead{display:none}.stack tr{display:grid;padding-block:10px;border-bottom:1px solid var(--line)}.stack td{display:flow-root;border:0;padding:3px 0;padding-inline-start:7em;text-align:start}.stack td::before{content:attr(data-l);float:inline-start;width:6.5em;margin-inline-start:-7em;white-space:normal;color:var(--mute)}.stack td:empty{display:none}.bar{grid-template-columns:minmax(0,6.5em) minmax(0,1fr) auto}.brand{font-size:20px}}
+@media print{.top,.status,.savebar,.noprint,#v-form,#v-report{display:none!important}main{padding:0;max-width:none}.qrs{grid-template-columns:repeat(3,1fr);gap:6mm}.qr{border:1.5mm solid #ffc400}body{background:#fff;color:#000}}
+</style>
+<script>new MutationObserver(()=>{for(const c of document.querySelectorAll('.stack td:not([data-l])')){let i=0,p=c;while(p=p.previousElementSibling)i+=p.colSpan;c.dataset.l=c.closest('table').rows[0].cells[i]?.textContent||''}}).observe(document,{childList:true,subtree:true})</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/exifr@7.1.3/dist/lite.umd.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
+</head>
+<body>
+<header class="top">
+  <div class="in">
+    <div class="brand"><b>KHO</b> Nhật ký công việc</div>
+    <nav id="nav">
+      <a href="#nhap" data-v="form">Nhập việc</a>
+      <a href="#bao-cao" data-v="report">Báo cáo</a>
+      <a href="#ma-qr" data-v="qr">Mã QR</a>
+    </nav>
+  </div>
+  <div class="stripe"></div>
+</header>
+<div class="status" id="status"></div>
+
+<main>
+  <section id="v-form" class="form">
+    <div id="locBox"></div>
+    <div class="field"><h3 class="req">Người thực hiện</h3><div id="staffBox"></div></div>
+    <div class="field"><h3 class="req">Loại công việc</h3><div class="jobs" id="jobBox"></div></div>
+    <div class="field">
+      <h3><span class="req" style="color:inherit;font-weight:700">Thời gian thực hiện</span><span>tính bằng phút</span></h3>
+      <div class="mins">
+        <div class="chips" id="minChips"></div>
+        <label>hoặc <input class="num-in" id="minIn" type="number" inputmode="numeric" min="1" max="999" step="1" placeholder="phút" aria-label="Số phút"></label>
+      </div>
+    </div>
+    <div class="field">
+      <h3><span class="req" style="color:inherit;font-weight:700">Ảnh</span><span id="photoCount">0/3</span></h3>
+      <div class="pbtns">
+        <label class="pbtn" id="camBtn"><input type="file" accept="image/*" capture="environment" id="camIn" aria-label="Chụp ảnh">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg>Chụp ảnh</label>
+        <label class="pbtn" id="libBtn"><input type="file" accept="image/*" multiple id="libIn" aria-label="Chọn ảnh từ máy">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 16l5-5 4 4 3-3 6 6"/><circle cx="16" cy="9" r="1.6"/></svg>Chọn từ máy</label>
+      </div>
+      <div class="thumbs" id="thumbs"></div>
+    </div>
+    <div class="field">
+      <h3>Ghi chú <span>không bắt buộc</span></h3>
+      <input class="txt-in" id="noteIn" type="text" maxlength="300" placeholder="Ví dụ: kệ bị móp, thiếu 2 thùng…">
+    </div>
+  </section>
+
+  <section id="v-report" hidden>
+    <h1 id="rTitle">Báo cáo công việc</h1>
+    <p class="sub" id="rSub"></p>
+    <div class="filters">
+      <div class="seg" id="perSeg"><button data-p="1">Hôm nay</button><button data-p="7">7 ngày</button><button data-p="30">30 ngày</button></div>
+      <select id="fStaff" aria-label="Lọc theo nhân viên"></select>
+      <select id="fJob" aria-label="Lọc theo loại công việc"></select>
+      <button class="btn" id="reload">Tải lại</button>
+      <a class="btn" id="sheetLink" href="#" target="_blank" rel="noopener" hidden>Mở Google Sheets</a>
+    </div>
+    <div class="kpis" id="kpis"></div>
+    <div class="grid2">
+      <div class="panel"><h2>Theo nhân viên</h2><p class="hint">Tổng thời gian tự khai và số lượt</p><div id="byStaff"></div></div>
+      <div class="panel"><h2>Theo loại công việc</h2><p class="hint">Tổng thời gian và trung bình mỗi lượt</p><div id="byJob"></div></div>
+    </div>
+    <div class="panel"><h2>Giờ công theo ngày</h2><p class="hint" id="dayHint"></p><div class="cols" id="byDay"></div></div>
+    <div class="panel"><h2>Cần kiểm tra</h2><p class="hint">Số phút khai lớn hơn khoảng cách giữa hai lần lưu, lượt quá 240 phút, hoặc ảnh chọn từ máy đã chụp từ hôm trước</p><div id="flags"></div></div>
+    <div class="panel"><h2>Theo vị trí</h2><p class="hint">Vị trí tô đỏ là chưa có lượt nào trong kỳ</p><div class="scroll"><table id="byLoc"></table></div></div>
+    <div class="panel"><h2>Nhật ký chi tiết</h2><p class="hint" id="logHint"></p><table class="stack" id="logs"></table></div>
+  </section>
+
+  <section id="v-qr" hidden>
+    <div class="noprint">
+      <h1>Mã QR cho từng vị trí</h1>
+      <p class="sub">In ra, ép plastic và dán ở đầu kệ hoặc ô kệ. Nhân viên quét bằng nút QUÉT MÃ QR trong trang, hoặc bằng camera điện thoại / Zalo. Danh sách vị trí sửa trong Google Sheets, trang tính "ViTri".</p>
+      <div class="row"><button class="btn pri" id="printQR">In tất cả mã</button></div>
+    </div>
+    <div class="qrs" id="qrs"></div>
+  </section>
+</main>
+
+<div class="savebar" id="saveBar"><div class="err" id="err"></div><button class="save" id="saveBtn">LƯU</button></div>
+<div class="scanner" id="scanner" role="dialog" aria-modal="true" aria-label="Quét mã QR">
+  <video id="video" playsinline muted></video><div class="frame"></div>
+  <div class="bar2"><div id="scanMsg">Đưa mã QR vào khung vàng</div><button id="scanClose">ĐÓNG</button></div>
+</div>
+<input type="file" accept="image/*" capture="environment" id="qrFile" hidden>
+<div class="modal" id="modal" role="dialog" aria-modal="true"><div class="box" id="box"></div></div>
+<div class="toast" id="toast"></div>
+
+<script>
+{
+const DEFAULT_JOBS=["Nhập hàng","Xuất hàng","Soạn hàng","Kiểm kê","Sắp xếp/đảo hàng","Vệ sinh","Kiểm tra kệ/thiết bị","Khác"];
+const QUICK=[5,10,15,30,60];
+const VIEWS={"nhap":"form","bao-cao":"report","ma-qr":"qr"};
+const READY=/^https:\/\/script\.google\.com\//.test(SCRIPT_URL);
+const S={cfg:{staff:[],jobs:DEFAULT_JOBS,locations:[]},sheetUrl:"",logs:[],flags:{},loc:"",pickLoc:false,staff:"",pickStaff:false,job:"",photos:[],view:"form",period:"7",fStaff:"",fJob:"",busy:false,loaded:false,loading:false};
+const $=s=>document.querySelector(s);
+const esc=v=>String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const LS={get(k){try{return localStorage.getItem(k)||""}catch(e){return ""}},set(k,v){try{localStorage.setItem(k,v)}catch(e){}},del(k){try{localStorage.removeItem(k)}catch(e){}}};
+const pad=n=>String(n).padStart(2,"0");
+const dayKey=ts=>{const d=new Date(ts);return d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate())};
+const fmtT=ts=>{const d=new Date(ts);return pad(d.getHours())+":"+pad(d.getMinutes())};
+const fmtD=ts=>{const d=new Date(ts);return pad(d.getDate())+"/"+pad(d.getMonth()+1)};
+const hrs=m=>{const h=m/60;return (Number.isInteger(h)?String(h):h.toFixed(1)).replace(".",",")};
+const locName=c=>(S.cfg.locations.find(l=>l.code===c)||{}).name||"";
+const okId=id=>/^[-\w]{20,}$/.test(id);
+const thumbUrl=(id,w)=>"https://drive.google.com/thumbnail?id="+encodeURIComponent(id)+"&sz=w"+w;
+const viewUrl=id=>"https://drive.google.com/file/d/"+encodeURIComponent(id)+"/view";
+S.staff=LS.get("nk_staff");
+try{const c=JSON.parse(LS.get("nk_cfg")||"null");if(c&&Array.isArray(c.locations))S.cfg=c}catch(e){}
+
+function setStatus(t){$("#status").textContent=t}
+let tt;function toast(t){const e=$("#toast");e.textContent=t;e.classList.add("on");clearTimeout(tt);tt=setTimeout(()=>e.classList.remove("on"),2800)}
+
+/* ---------- máy chủ ---------- */
+async function api(params){
+  const u=SCRIPT_URL+"?"+new URLSearchParams(params).toString();
+  const r=await fetch(u,{method:"GET",redirect:"follow"});return r.json();
+}
+async function post(body){
+  const r=await fetch(SCRIPT_URL,{method:"POST",body:JSON.stringify(body),redirect:"follow"});return r.json();
+}
+
+/* ---------- hộp thoại ---------- */
+let modalDone=null;
+function openModal(html,wide){const b=$("#box");b.className="box"+(wide?" wide":"");b.innerHTML=html;$("#modal").classList.add("open");const f=b.querySelector("input,[data-m]");if(f)f.focus()}
+function closeModal(v){$("#modal").classList.remove("open");if(modalDone){const d=modalDone;modalDone=null;d(v)}}
+function ask(title,body,ok,cancel){return new Promise(res=>{modalDone=res;openModal(`<h2>${esc(title)}</h2><p>${esc(body)}</p><div class="row"><button class="btn pri" data-m="1">${esc(ok)}</button><button class="btn" data-m="0">${esc(cancel)}</button></div>`)})}
+$("#modal").addEventListener("submit",e=>{e.preventDefault();closeModal(true)});
+$("#modal").addEventListener("click",e=>{const m=e.target.closest("[data-m]");if(m){closeModal(m.dataset.m==="1");return}if(e.target.id==="modal")closeModal(false)});
+document.addEventListener("keydown",e=>{if(e.key==="Escape"){if($("#scanner").classList.contains("open"))stopScan();else if($("#modal").classList.contains("open"))closeModal(false)}});
+
+function pinPrompt(title,note){return new Promise(res=>{let val="";modalDone=ok=>res(ok?val:"");openModal(`<h2>${esc(title)}</h2><p>${esc(note)}</p><form id="pinForm"><input class="txt-in" id="pinIn" type="password" inputmode="numeric" autocomplete="off" placeholder="Mã PIN" style="margin-bottom:14px"><div class="row"><button class="btn pri" type="submit">Xác nhận</button><button class="btn" type="button" data-m="0">Thôi</button></div></form>`);$("#pinIn").addEventListener("input",e=>val=e.target.value.trim())})}
+
+async function staffPin(force){
+  let p=LS.get("nk_pin")||LS.get("nk_mpin");
+  if(!p||force){p=await pinPrompt("Nhập mã PIN của kho","Hỏi quản lý mã PIN. Chỉ cần nhập một lần trên điện thoại này.");if(!p)return "";LS.set("nk_pin",p)}
+  return p;
+}
+async function managerPin(force){
+  let p=LS.get("nk_mpin");
+  if(!p||force){p=await pinPrompt("Mã PIN quản lý","Nhập mã PIN quản lý để xem báo cáo.");if(!p)return "";LS.set("nk_mpin",p)}
+  return p;
+}
+
+/* ---------- điều hướng ---------- */
+function route(){
+  let h=location.hash.slice(1);try{h=decodeURIComponent(h)}catch(e){}
+  if(VIEWS[h])S.view=VIEWS[h];else{S.view="form";if(h){S.loc=h.toUpperCase();S.pickLoc=false}}
+  render();
+  if(S.view==="report")loadReport(false);
+}
+window.addEventListener("hashchange",route);
+function render(){
+  for(const v of ["form","report","qr"])$("#v-"+v).hidden=S.view!==v;
+  $("#saveBar").hidden=S.view!=="form";
+  for(const a of document.querySelectorAll("#nav a")){if(a.dataset.v===S.view)a.setAttribute("aria-current","page");else a.removeAttribute("aria-current")}
+  if(S.view==="form")renderForm();
+  if(S.view==="report")renderReport();
+  if(S.view==="qr")renderQR();
+}
+
+/* ---------- form ---------- */
+const arrowSvg='<svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#ffc400" stroke-width="3"><path d="M12 4v15M5 12l7 7 7-7"/></svg>';
+const scanBtn='<button class="scan" data-act="scan"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M4 9V4h5M15 4h5v5M20 15v5h-5M9 20H4v-5M8 12h8"/></svg>QUÉT MÃ QR</button>';
+function renderForm(){
+  const lb=$("#locBox");
+  if(S.loc&&!S.pickLoc){const n=locName(S.loc);
+    lb.innerHTML=`<div class="label"><div class="arr">${arrowSvg}</div><small>Vị trí</small><div class="code">${esc(S.loc)}</div><div class="name">${n?esc(n):"Vị trí chưa có trong danh sách"}</div><button class="chg" data-act="pickLoc">Đổi vị trí</button>${scanBtn}</div>`;
+  }else{
+    const opts=S.cfg.locations.map(l=>`<option value="${esc(l.code)}"${l.code===S.loc?" selected":""}>${esc(l.code)}${l.name?" · "+esc(l.name):""}</option>`).join("");
+    lb.innerHTML=`<div class="label"><div class="arr">${arrowSvg}</div><small>Vị trí</small><div class="name" style="font-size:17px">Quét mã QR dán ở kệ, hoặc chọn ở đây</div><select id="locSel" aria-label="Chọn vị trí"><option value="">Chọn vị trí…</option>${opts}</select>${scanBtn}</div>`;
+  }
+  const sb=$("#staffBox");
+  if(S.staff&&!S.pickStaff)sb.innerHTML=`<div class="me">${esc(S.staff)}<button class="link" data-act="pickStaff">Không phải bạn? Đổi</button></div>`;
+  else if(S.cfg.staff.length)sb.innerHTML=`<div class="chips">${S.cfg.staff.map(n=>`<button class="chip" data-staff="${esc(n)}" aria-pressed="${n===S.staff}">${esc(n)}</button>`).join("")}</div><p class="sub" style="margin:6px 0 0;font-size:14px">Chọn một lần, điện thoại sẽ nhớ cho các lần sau.</p>`;
+  else sb.innerHTML=`<input class="txt-in" id="staffIn" placeholder="Nhập tên của bạn" value="${esc(S.staff)}">`;
+  const jobs=S.cfg.jobs.length?S.cfg.jobs:DEFAULT_JOBS;
+  $("#jobBox").innerHTML=jobs.map(j=>`<button class="job" data-job="${esc(j)}" aria-pressed="${j===S.job}">${esc(j)}</button>`).join("");
+  const mv=Number($("#minIn").value);
+  $("#minChips").innerHTML=QUICK.map(q=>`<button class="chip" data-min="${q}" aria-pressed="${mv===q}">${q}</button>`).join("");
+  renderPhotos();
+}
+function renderPhotos(){
+  $("#thumbs").innerHTML=S.photos.map((p,i)=>`<div class="thumb"><img src="${esc(p.url)}" alt="Ảnh ${i+1}"><span class="src">${p.src==="camera"?"Chụp":"Từ máy"}</span><button class="x" data-rm="${i}" aria-label="Xoá ảnh">×</button></div>`).join("");
+  $("#photoCount").textContent=S.photos.length+"/3";
+  const full=S.photos.length>=3;$("#camBtn").classList.toggle("off",full);$("#libBtn").classList.toggle("off",full);
+}
+function addFiles(files,src){
+  for(const f of files){
+    if(S.photos.length>=3){toast("Tối đa 3 ảnh mỗi lượt");break}
+    if(f.type&&!f.type.startsWith("image/"))continue;
+    const p={src,url:URL.createObjectURL(f),taken:null};S.photos.push(p);
+    if(window.exifr)exifr.parse(f,["DateTimeOriginal"]).then(o=>{if(o&&o.DateTimeOriginal instanceof Date&&!isNaN(o.DateTimeOriginal))p.taken=o.DateTimeOriginal.getTime()}).catch(()=>{});
+  }
+  renderPhotos();
+}
+$("#camIn").addEventListener("change",e=>{addFiles([...e.target.files],"camera");e.target.value=""});
+$("#libIn").addEventListener("change",e=>{addFiles([...e.target.files],"library");e.target.value=""});
+$("#minIn").addEventListener("input",()=>{const v=Number($("#minIn").value);for(const b of document.querySelectorAll("[data-min]"))b.setAttribute("aria-pressed",String(Number(b.dataset.min)===v))});
+document.addEventListener("change",e=>{
+  if(e.target.id==="locSel"&&e.target.value){S.loc=e.target.value;S.pickLoc=false;renderForm()}
+  if(e.target.id==="staffIn"){S.staff=e.target.value.trim();LS.set("nk_staff",S.staff)}
+});
+document.addEventListener("click",e=>{
+  const t=e.target.closest("button");if(!t||t.closest("#modal"))return;
+  if(t.dataset.act==="pickLoc"){S.pickLoc=true;renderForm()}
+  else if(t.dataset.act==="scan")startScan();
+  else if(t.dataset.act==="pickStaff"){S.pickStaff=true;renderForm()}
+  else if(t.dataset.staff!==undefined){S.staff=t.dataset.staff;S.pickStaff=false;LS.set("nk_staff",S.staff);renderForm()}
+  else if(t.dataset.job!==undefined){S.job=t.dataset.job;renderForm()}
+  else if(t.dataset.min){$("#minIn").value=t.dataset.min;$("#minIn").dispatchEvent(new Event("input"))}
+  else if(t.dataset.rm!==undefined){const p=S.photos.splice(Number(t.dataset.rm),1)[0];if(p)URL.revokeObjectURL(p.url);renderPhotos()}
+  else if(t.dataset.p){S.period=t.dataset.p;renderReport()}
+  else if(t.dataset.lb!==undefined){const [id,i]=t.dataset.lb.split("|");showPhotos(id,Number(i))}
+});
+$("#modal").addEventListener("click",e=>{const t=e.target.closest("[data-nav]");if(t){const [id,i]=t.dataset.nav.split("|");showPhotos(id,Number(i))}});
+
+/* ---------- quét QR trực tiếp ---------- */
+let stream=null,scanning=false;
+function useCode(txt){
+  let code=txt.includes("#")?txt.slice(txt.lastIndexOf("#")+1):txt;try{code=decodeURIComponent(code)}catch(e){}
+  code=code.trim().toUpperCase();
+  if(!/^[A-Z0-9-]{1,40}$/.test(code)||VIEWS[code.toLowerCase()]){toast("Mã này không phải mã vị trí của kho.");return false}
+  S.loc=code;S.pickLoc=false;renderForm();try{navigator.vibrate&&navigator.vibrate(80)}catch(e){}
+  toast("Đã nhận vị trí "+code+(locName(code)?"":" (chưa có trong danh sách)"));return true;
+}
+async function startScan(){
+  if(!window.jsQR){toast("Chưa tải được bộ đọc mã, kiểm tra mạng.");return}
+  if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){$("#qrFile").click();return}
+  try{stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:"environment"}},audio:false})}
+  catch(e){toast("Chưa được dùng camera. Hãy cho phép camera, hoặc chụp ảnh mã.");$("#qrFile").click();return}
+  const v=$("#video");v.srcObject=stream;$("#scanner").classList.add("open");$("#scanMsg").textContent="Đưa mã QR vào khung vàng";
+  try{await v.play()}catch(e){}
+  scanning=true;const c=document.createElement("canvas"),x=c.getContext("2d",{willReadFrequently:true});
+  const tick=()=>{
+    if(!scanning)return;
+    if(v.readyState>=2&&v.videoWidth){
+      const s=Math.min(1,720/Math.max(v.videoWidth,v.videoHeight));c.width=Math.round(v.videoWidth*s);c.height=Math.round(v.videoHeight*s);
+      x.drawImage(v,0,0,c.width,c.height);
+      const q=jsQR(x.getImageData(0,0,c.width,c.height).data,c.width,c.height,{inversionAttempts:"dontInvert"});
+      if(q&&q.data){if(useCode(q.data)){stopScan();return}}
+    }
+    requestAnimationFrame(tick);
+  };
+  requestAnimationFrame(tick);
+}
+function stopScan(){scanning=false;$("#scanner").classList.remove("open");if(stream){for(const t of stream.getTracks())t.stop();stream=null}$("#video").srcObject=null}
+$("#scanClose").addEventListener("click",stopScan);
+$("#qrFile").addEventListener("change",async e=>{const f=e.target.files[0];e.target.value="";if(!f)return;
+  const url=URL.createObjectURL(f);let txt="";
+  try{const img=await loadImg(url);for(const max of [1000,700,1400]){const r=Math.min(1,max/Math.max(img.naturalWidth,img.naturalHeight));const c=document.createElement("canvas");c.width=Math.round(img.naturalWidth*r);c.height=Math.round(img.naturalHeight*r);const x=c.getContext("2d");x.drawImage(img,0,0,c.width,c.height);const q=jsQR(x.getImageData(0,0,c.width,c.height).data,c.width,c.height,{inversionAttempts:"attemptBoth"});if(q&&q.data){txt=q.data;break}}}catch(err){}
+  URL.revokeObjectURL(url);if(txt)useCode(txt);else toast("Không đọc được mã. Chụp gần hơn, đủ sáng.");
+});
+
+/* ---------- lưu ---------- */
+function loadImg(url){return new Promise((res,rej)=>{const i=new Image();i.onload=()=>res(i);i.onerror=rej;i.src=url})}
+async function toJpegBase64(url,max,q){
+  const i=await loadImg(url);const r=Math.min(1,max/Math.max(i.naturalWidth,i.naturalHeight));
+  const c=document.createElement("canvas");c.width=Math.max(1,Math.round(i.naturalWidth*r));c.height=Math.max(1,Math.round(i.naturalHeight*r));
+  c.getContext("2d").drawImage(i,0,0,c.width,c.height);return c.toDataURL("image/jpeg",q).split(",")[1];
+}
+let pendingId=null;
+$("#saveBtn").addEventListener("click",()=>save(false));
+async function save(force){
+  if(S.busy)return;
+  const err=$("#err");err.textContent="";
+  if(!READY){err.textContent="Trang chưa được nối với Google Sheets (chưa dán link Apps Script).";return}
+  if(!S.staff&&$("#staffIn")){S.staff=$("#staffIn").value.trim();LS.set("nk_staff",S.staff)}
+  const raw=$("#minIn").value.trim(),m=Math.round(Number(raw));
+  const miss=[];if(!S.loc)miss.push("vị trí");if(!S.staff)miss.push("người thực hiện");if(!S.job)miss.push("loại công việc");if(!raw)miss.push("thời gian");if(!S.photos.length)miss.push("ít nhất 1 ảnh");
+  if(miss.length){err.textContent="Còn thiếu: "+miss.join(", ")+".";return}
+  if(!(m>0)){err.textContent="Thời gian phải lớn hơn 0 phút.";return}
+  if(m>480&&!force){if(await ask("Bạn chắc chắn chứ?",`Bạn nhập ${m} phút, tức hơn 8 giờ (quá một ca) cho một lượt việc.`,"Đúng, lưu","Sửa lại"))save(true);else $("#minIn").focus();return}
+  const pin=await staffPin(false);if(!pin){err.textContent="Cần mã PIN của kho để lưu.";return}
+  S.busy=true;const btn=$("#saveBtn");btn.disabled=true;btn.textContent="ĐANG LƯU…";
+  try{
+    const photos=[];for(const p of S.photos)photos.push({data:await toJpegBase64(p.url,1280,.8),src:p.src,taken:p.taken});
+    pendingId=pendingId||((crypto.randomUUID&&crypto.randomUUID())||(Date.now()+"-"+Math.random().toString(36).slice(2)));
+    const body={action:"save",pin,id:pendingId,ts:Date.now(),loc:S.loc,staff:S.staff,job:S.job,minutes:m,note:$("#noteIn").value.trim().slice(0,300),photos};
+    const r=await post(body);
+    if(!r.ok){
+      if(r.error==="pin"){LS.del("nk_pin");err.textContent="Mã PIN không đúng. Bấm LƯU để nhập lại.";return}
+      err.textContent=r.error==="missing"?"Thiếu thông tin, kiểm tra lại các ô.":r.error==="setup"?"Máy chủ chưa chạy hàm setup. Báo quản lý.":"Máy chủ báo lỗi, thử lại sau ít phút.";return;
+    }
+    pendingId=null;
+    for(const p of S.photos)URL.revokeObjectURL(p.url);
+    const info=`${esc(body.job)} · ${esc(body.loc)} · ${m} phút<br>${esc(body.staff)}, lúc ${fmtT(body.ts)}`;
+    S.photos=[];S.job="";$("#minIn").value="";$("#noteIn").value="";renderForm();
+    modalDone=null;openModal(`<div class="tick"><svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></div><h2>Đã lưu</h2><p>${info}</p><div class="row"><button class="btn pri" data-m="1">Nhập việc tiếp</button></div>`);
+  }catch(e){err.textContent="Lưu chưa được (mạng yếu?). Bấm LƯU lại, sẽ không bị lưu trùng."}
+  finally{S.busy=false;btn.disabled=false;btn.textContent="LƯU"}
+}
+
+/* ---------- tải danh sách ---------- */
+async function loadConfig(){
+  if(!READY){setStatus("Trang chưa được nối với Google Sheets: mở file index.html và dán link Apps Script vào dòng SCRIPT_URL.");return}
+  const pin=LS.get("nk_mpin")||LS.get("nk_pin");if(!pin)return;
+  try{const r=await api({action:"config",pin});
+    if(r.ok){S.cfg={staff:r.staff||[],jobs:(r.jobs&&r.jobs.length)?r.jobs:DEFAULT_JOBS,locations:r.locations||[]};S.sheetUrl=r.sheetUrl||"";LS.set("nk_cfg",JSON.stringify(S.cfg));setStatus("");render()}
+    else if(r.error==="pin"){LS.del("nk_pin");LS.del("nk_mpin")}
+    else if(r.error==="setup")setStatus("Máy chủ chưa chạy hàm setup trong Apps Script.");
+  }catch(e){setStatus("Chưa kết nối được máy chủ. Kiểm tra mạng hoặc link Apps Script.")}
+}
+async function loadReport(force){
+  if(!READY||S.loading)return;
+  const pin=await managerPin(false);if(!pin){location.hash="nhap";return}
+  S.loading=true;$("#rSub").textContent="Đang tải dữ liệu…";
+  try{const r=await api({action:"list",pin,days:31});
+    if(!r.ok){if(r.error==="pin"){LS.del("nk_mpin");toast("Mã PIN quản lý không đúng.");S.loading=false;return loadReport(true)}$("#rSub").textContent="Máy chủ báo lỗi khi đọc dữ liệu.";return}
+    S.logs=(r.rows||[]).map(x=>({...x,_id:x.id||String(x.ts)})).sort((a,b)=>b.ts-a.ts);S.loaded=true;
+    if(!S.sheetUrl)loadConfig();
+    computeFlags();renderReport();
+  }catch(e){$("#rSub").textContent="Chưa tải được dữ liệu, kiểm tra mạng rồi bấm Tải lại."}
+  finally{S.loading=false}
+}
+$("#reload").addEventListener("click",()=>loadReport(true));
+setInterval(()=>{if(S.view==="report"&&!document.hidden&&LS.get("nk_mpin"))loadReport(false)},60000);
+
+/* ---------- cảnh báo ---------- */
+function computeFlags(){
+  const by={},F={};
+  for(const l of S.logs)(by[l.staff+"|"+dayKey(l.ts)]||=[]).push(l);
+  for(const k in by){const a=by[k].slice().sort((x,y)=>x.ts-y.ts);
+    a.forEach((l,i)=>{const f=[];
+      if(l.minutes>240)f.push(`Khai ${l.minutes} phút cho một lượt`);
+      if(i>0){const gap=Math.round((l.ts-a[i-1].ts)/60000);if(l.minutes>=15&&gap<l.minutes*.6)f.push(`Khai ${l.minutes} phút nhưng chỉ cách lần lưu trước ${gap} phút`)}
+      if(l.photoWarn)f.push(l.photoWarn);
+      if(f.length)F[l._id]=f});
+  }
+  S.flags=F;
+}
+
+/* ---------- báo cáo ---------- */
+function periodStart(){const d=new Date();d.setHours(0,0,0,0);if(S.period==="1")return d.getTime();d.setDate(d.getDate()-(S.period==="7"?6:29));return d.getTime()}
+const PNAME={"1":"Hôm nay","7":"7 ngày qua","30":"30 ngày qua"};
+function bars(map,extra){
+  const rows=Object.entries(map).sort((a,b)=>b[1].m-a[1].m);if(!rows.length)return '<p class="empty">Chưa có dữ liệu trong kỳ.</p>';
+  const max=Math.max(...rows.map(r=>r[1].m),1);
+  return rows.map(([k,v])=>`<div class="bar"><span>${esc(k)}</span><span class="tr"><i style="width:${(v.m/max*100).toFixed(1)}%"></i></span><span class="v">${hrs(v.m)} giờ <small>${extra(v)}</small></span></div>`).join("");
+}
+function photoCell(l){
+  return (l.photos||[]).filter(p=>okId(p.id)).map((p,i)=>`<button data-lb="${esc(l._id)}|${i}" aria-label="Xem ảnh"><img src="${esc(thumbUrl(p.id,200))}" alt="" loading="lazy" data-id="${esc(p.id)}"></button>`).join("");
+}
+function renderReport(){
+  for(const b of document.querySelectorAll("#perSeg button"))b.setAttribute("aria-pressed",String(b.dataset.p===S.period));
+  $("#sheetLink").hidden=!/^https:\/\/docs\.google\.com\//.test(S.sheetUrl);if(S.sheetUrl)$("#sheetLink").href=S.sheetUrl;
+  const staffs=[...new Set([...S.cfg.staff,...S.logs.map(l=>l.staff)])].filter(Boolean);
+  const jobs=[...new Set([...S.cfg.jobs,...S.logs.map(l=>l.job)])].filter(Boolean);
+  $("#fStaff").innerHTML=`<option value="">Tất cả nhân viên</option>`+staffs.map(s=>`<option${s===S.fStaff?" selected":""}>${esc(s)}</option>`).join("");
+  $("#fJob").innerHTML=`<option value="">Tất cả công việc</option>`+jobs.map(s=>`<option${s===S.fJob?" selected":""}>${esc(s)}</option>`).join("");
+  if(!S.loaded){$("#rTitle").textContent="Báo cáo công việc";return}
+  const st=periodStart();
+  const rows=S.logs.filter(l=>l.ts>=st&&(!S.fStaff||l.staff===S.fStaff)&&(!S.fJob||l.job===S.fJob));
+  const tot=rows.reduce((s,l)=>s+l.minutes,0),locDone=new Set(rows.map(l=>l.loc));
+  $("#rTitle").textContent=`${PNAME[S.period]}: ${rows.length} lượt việc, ${hrs(tot)} giờ công`;
+  $("#rSub").textContent=`Cập nhật lúc ${fmtT(Date.now())}, tự tải lại mỗi phút. Dữ liệu gốc nằm trong Google Sheets.`;
+  const totalLoc=S.cfg.locations.length;
+  $("#kpis").innerHTML=[[rows.length,"lượt công việc"],[hrs(tot),"giờ công đã khai"],[rows.length?Math.round(tot/rows.length):0,"phút trung bình mỗi lượt"],[totalLoc?`${[...locDone].filter(c=>S.cfg.locations.some(l=>l.code===c)).length}/${totalLoc}`:locDone.size,"vị trí đã có người làm"]].map(([b,s])=>`<div class="kpi"><b>${esc(b)}</b><span>${esc(s)}</span></div>`).join("");
+  const bs={},bj={};
+  for(const l of rows){(bs[l.staff]||={m:0,n:0,d:new Set()});bs[l.staff].m+=l.minutes;bs[l.staff].n++;bs[l.staff].d.add(dayKey(l.ts));(bj[l.job]||={m:0,n:0});bj[l.job].m+=l.minutes;bj[l.job].n++}
+  $("#byStaff").innerHTML=bars(bs,v=>`· ${v.n} lượt · ${v.d.size} ngày`);
+  $("#byJob").innerHTML=bars(bj,v=>`· ${v.n} lượt · TB ${Math.round(v.m/v.n)}′`);
+  const nd=S.period==="30"?14:7;$("#dayHint").textContent=`${nd} ngày gần nhất, theo bộ lọc nhân viên và công việc`;
+  const days=[];for(let i=nd-1;i>=0;i--){const d=new Date();d.setHours(0,0,0,0);d.setDate(d.getDate()-i);days.push({k:dayKey(d.getTime()),ts:d.getTime(),m:0})}
+  for(const l of S.logs){if(S.fStaff&&l.staff!==S.fStaff)continue;if(S.fJob&&l.job!==S.fJob)continue;const d=days.find(x=>x.k===dayKey(l.ts));if(d)d.m+=l.minutes}
+  const dm=Math.max(...days.map(d=>d.m),1);
+  $("#byDay").innerHTML=days.map(d=>`<div class="col"><span class="cv">${d.m?hrs(d.m):""}</span><i style="height:${(d.m/dm*78).toFixed(1)}%"></i><span>${fmtD(d.ts)}</span></div>`).join("");
+  const fl=rows.filter(l=>S.flags[l._id]);
+  $("#flags").innerHTML=fl.length?`<table class="stack"><thead><tr><th>Lúc</th><th>Nhân viên</th><th>Vị trí</th><th>Vấn đề</th></tr></thead><tbody>${fl.map(l=>`<tr><td class="nw">${fmtD(l.ts)} ${fmtT(l.ts)}</td><td>${esc(l.staff)}</td><td>${esc(l.loc)}</td><td>${S.flags[l._id].map(f=>`<span class="flag">${esc(f)}</span>`).join("")}</td></tr>`).join("")}</tbody></table>`:'<p class="empty">Không có lượt nào cần kiểm tra.</p>';
+  const lr=S.cfg.locations.map(L=>{const ls=rows.filter(l=>l.loc===L.code);return{...L,n:ls.length,m:ls.reduce((s,l)=>s+l.minutes,0),last:S.logs.find(l=>l.loc===L.code)}});
+  for(const c of locDone)if(!S.cfg.locations.some(L=>L.code===c)){const ls=rows.filter(l=>l.loc===c);lr.push({code:c,name:"(ngoài danh sách)",n:ls.length,m:ls.reduce((s,l)=>s+l.minutes,0),last:S.logs.find(l=>l.loc===c)})}
+  lr.sort((a,b)=>(a.n>0)-(b.n>0)||a.code.localeCompare(b.code));
+  $("#byLoc").innerHTML=lr.length?`<thead><tr><th>Mã</th><th>Vị trí</th><th class="r">Lượt</th><th class="r">Giờ</th><th>Lần cuối</th></tr></thead><tbody>${lr.map(L=>`<tr class="${L.n?"":"miss"}"><td class="nw"><b>${esc(L.code)}</b></td><td>${esc(L.name)}</td><td class="r">${L.n}</td><td class="r">${hrs(L.m)}</td><td class="nw">${L.last?`${fmtD(L.last.ts)} · ${esc(L.last.job)}`:"Chưa có trong 31 ngày"}</td></tr>`).join("")}</tbody>`:'<tbody><tr><td class="empty">Chưa có danh sách vị trí (trang tính ViTri).</td></tr></tbody>';
+  const show=rows.slice(0,200);
+  $("#logHint").textContent=rows.length>200?`200 lượt mới nhất trong ${rows.length} lượt. Xem đủ trong Google Sheets.`:`${rows.length} lượt, mới nhất trước`;
+  $("#logs").innerHTML=show.length?`<thead><tr><th>Lúc</th><th>Nhân viên</th><th>Vị trí</th><th>Công việc</th><th class="r">Phút</th><th>Ảnh</th><th>Ghi chú</th></tr></thead><tbody>${show.map(l=>`<tr><td class="nw">${fmtD(l.ts)} ${fmtT(l.ts)}</td><td>${esc(l.staff)}</td><td class="nw">${esc(l.loc)}</td><td>${esc(l.job)}</td><td class="r">${l.minutes}</td><td><div class="tt">${photoCell(l)}</div></td><td>${esc(l.note)}${(S.flags[l._id]||[]).map(f=>`<span class="flag">${esc(f)}</span>`).join("")}</td></tr>`).join("")}</tbody>`:'<tbody><tr><td class="empty">Chưa có lượt nào trong kỳ.</td></tr></tbody>';
+}
+$("#fStaff").addEventListener("change",e=>{S.fStaff=e.target.value;renderReport()});
+$("#fJob").addEventListener("change",e=>{S.fJob=e.target.value;renderReport()});
+/* ảnh không xem được qua link → đổi thành liên kết mở trong Drive */
+document.addEventListener("error",e=>{const im=e.target;if(im.tagName!=="IMG"||!im.dataset.id)return;const a=document.createElement("a");a.href=viewUrl(im.dataset.id);a.target="_blank";a.rel="noopener";a.textContent="Mở ảnh";const b=im.closest("button");(b||im).replaceWith(a)},true);
+function showPhotos(id,i){
+  const l=S.logs.find(x=>x._id===id);if(!l)return;const ps=(l.photos||[]).filter(p=>okId(p.id));if(!ps.length)return;
+  i=(i+ps.length)%ps.length;const p=ps[i];
+  modalDone=null;
+  openModal(`<img src="${esc(thumbUrl(p.id,1600))}" alt="Ảnh công việc"><p style="margin:10px 4px">${fmtD(l.ts)} ${fmtT(l.ts)} · ${esc(l.staff)} · ${esc(l.loc)} · ${esc(l.job)} · ${p.src==="camera"?"chụp trực tiếp":"chọn từ máy"}</p><div class="row">${ps.length>1?`<button class="btn" data-nav="${esc(id)}|${i-1}">‹ Trước</button><button class="btn" data-nav="${esc(id)}|${i+1}">Sau ›</button>`:""}<a class="btn" href="${esc(viewUrl(p.id))}" target="_blank" rel="noopener">Mở trong Drive</a><button class="btn pri" data-m="0">Đóng</button></div>`,true);
+}
+
+/* ---------- mã QR ---------- */
+function qrSvg(text){
+  if(!window.qrcode)return '<p class="empty">Không tải được thư viện QR.</p>';
+  const q=qrcode(0,"M");q.addData(text);q.make();const n=q.getModuleCount();let d="";
+  for(let r=0;r<n;r++)for(let c=0;c<n;c++)if(q.isDark(r,c))d+=`M${c+4} ${r+4}h1v1h-1z`;
+  const t=n+8;return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${t} ${t}" shape-rendering="crispEdges"><rect width="${t}" height="${t}" fill="#fff"/><path d="${d}" fill="#000"/></svg>`;
+}
+const pageUrl=()=>location.origin+location.pathname;
+function renderQR(){
+  const L=S.cfg.locations;
+  $("#qrs").innerHTML=L.length?L.map(l=>`<div class="qr">${qrSvg(pageUrl()+"#"+encodeURIComponent(l.code))}<div class="c">${esc(l.code)}</div><div class="n">${esc(l.name)}</div><i>Quét mã để ghi nhận công việc</i></div>`).join(""):'<p class="empty">Chưa có vị trí nào. Thêm vào trang tính "ViTri" trong Google Sheets rồi tải lại trang.</p>';
+}
+$("#printQR").addEventListener("click",()=>window.print());
+
+/* ---------- khởi động ---------- */
+route();
+(async()=>{
+  if(!READY){loadConfig();return}
+  if(!LS.get("nk_pin")&&!LS.get("nk_mpin")&&S.view!=="report")await staffPin(true);
+  await loadConfig();
+})();
+}
+</script>
+</body>
+</html>
